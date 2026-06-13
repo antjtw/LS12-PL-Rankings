@@ -61,7 +61,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .logo-svg {
-  height: 26px;
+  height: 20px;
   width: auto;
   display: block;
 }
@@ -221,27 +221,7 @@ main {
 
 .ig-icon { width: 14px; height: 14px; }
 
-.comp-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  min-width: 0;
-}
 
-.comp-name {
-  font-size: 10.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.comp-date {
-  font-size: 10.5px;
-  color: var(--text-dim);
-  flex-shrink: 0;
-}
 
 /* ============================================================
    MOBILE STAT ITEMS
@@ -318,7 +298,7 @@ main {
    DESKTOP — >= 600px
    ============================================================ */
 @media (min-width: 600px) {
-  .logo-svg { height: 32px; }
+  .logo-svg { height: 24px; }
 
   .site-header { padding: 22px 20px 18px; }
 
@@ -390,7 +370,6 @@ main {
 
   .mobile-only { display: none !important; }
 
-  .comp-name { max-width: 200px; }
   .table-wrap { padding: 0 16px; }
 
   .row-first .athlete-name { font-size: 19px; }
@@ -400,5 +379,4 @@ main {
 @media (min-width: 780px) {
   .athlete-name { font-size: 18px; }
   .col-dots { font-size: 20px; }
-  .comp-name { max-width: 260px; }
 }
