@@ -121,6 +121,13 @@ const LIFTERS = [
     squat: 82.5, bench: 45, deadlift: 117.5, total: 245, dots: 245.62,
   },
 
+  {
+    name: "Jack Larkins-Thomas",
+    slug: "jacklarkinsthomas",
+    ig: "jackliftingstuff",
+    squat: 160, bench: 82.5, deadlift: 180, total: 422.5, dots: 245.91,
+  },
+
   // ── LEGACY MEMBERS ──────────────────────────────────────────
   {
     name: "Gerry-Lee Pierre",
