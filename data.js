@@ -152,6 +152,7 @@ const LIFTERS = [
     legacy: true,
   },
   {
+    name: "Gerry-Lee Pierre",
     slug: "gerryleepierre",
     ig: "gerryleepierre",
     squat: 305, bench: 182.5, deadlift: 305, total: 785, dots: 483.49,
