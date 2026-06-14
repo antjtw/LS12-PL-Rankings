@@ -90,25 +90,13 @@
     });
   }
 
-  // ── Theme ─────────────────────────────────────────────────────
+  // ── Theme (system preference only) ───────────────────────────
   function initTheme() {
     const root = document.documentElement;
-    const btn  = document.getElementById("theme-toggle");
-    if (!btn) return;
-
-    const saved = localStorage.getItem("implexus-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = saved ? saved === "dark" : prefersDark;
-
-    root.dataset.theme = isDark ? "dark" : "light";
-    btn.setAttribute("aria-checked", isDark ? "true" : "false");
-
-    btn.addEventListener("click", () => {
-      const nowDark = root.dataset.theme === "dark";
-      const next = nowDark ? "light" : "dark";
-      root.dataset.theme = next;
-      btn.setAttribute("aria-checked", nowDark ? "false" : "true");
-      localStorage.setItem("implexus-theme", next);
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    root.dataset.theme = mq.matches ? "dark" : "light";
+    mq.addEventListener("change", e => {
+      root.dataset.theme = e.matches ? "dark" : "light";
     });
   }
 
