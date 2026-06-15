@@ -1,15 +1,60 @@
 // Implexus Powerlifting — Leaderboard Renderer
 
 (function () {
-  let showLegacy = false;
 
+  // ── Config ────────────────────────────────────────────────────
+  const CONFIG = {
+    rivalry_count:      5,      // number of rivalry pairs to surface
+    scroll_duration_ms: 18000,  // how long the scroll phase lasts
+    rivalry_hold_ms:    9000,   // how long each rivalry card holds
+    scroll_px_per_sec:  60,     // scroll speed during list phase
+  };
+
+  // ── State ─────────────────────────────────────────────────────
+  let showLegacy = false;
+  let dynamicActive = false;
+  let dynamicPlaylist = [];   // [{type:'scroll'} | {type:'rivalry', a, b, gap}]
+  let playlistIndex = 0;
+  let scrollRAF = null;
+  let holdTimeout = null;
+  let overlay = null;
+
+  // ── Formatters ───────────────────────────────────────────────
   function fmt(val) {
     return val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
   }
-  function fmtDots(val) {
-    return val.toFixed(2);
+  function fmtDots(val) { return val.toFixed(2); }
+
+  // ── Data helpers ─────────────────────────────────────────────
+  function getList() {
+    return (showLegacy ? [...LIFTERS] : LIFTERS.filter(l => !l.legacy))
+      .sort((a, b) => b.dots - a.dots);
   }
 
+  function getRivalries(list) {
+    // Find all adjacent pairs, sort by gap, take top N
+    const pairs = [];
+    for (let i = 0; i < list.length - 1; i++) {
+      const gap = list[i].dots - list[i + 1].dots;
+      pairs.push({ a: list[i], b: list[i + 1], gap });
+    }
+    pairs.sort((x, y) => x.gap - y.gap);
+    return pairs.slice(0, CONFIG.rivalry_count);
+  }
+
+  function buildPlaylist(list) {
+    const rivalries = getRivalries(list);
+    // Interleave: scroll, rivalry, scroll, rivalry ...
+    const pl = [];
+    const scrollCount = rivalries.length + 1;
+    for (let i = 0; i < scrollCount; i++) {
+      pl.push({ type: 'scroll' });
+      if (rivalries[i]) pl.push({ type: 'rivalry', ...rivalries[i] });
+    }
+    return pl;
+  }
+
+  // ── Normal leaderboard render ─────────────────────────────────
   function igLink(handle) {
     if (!handle) return "";
     return `<a class="ig-link" href="https://instagram.com/${handle}/" target="_blank" rel="noopener" aria-label="@${handle}">
@@ -28,34 +73,26 @@
     </div>`;
   }
 
-  function getList() {
-    const list = showLegacy ? [...LIFTERS] : LIFTERS.filter(l => !l.legacy);
-    return list.sort((a, b) => b.dots - a.dots);
-  }
-
   function barWidth(dots, min, max) {
-    const pct = (dots - min) / (max - min || 1);
-    return 30 + pct * 70;
+    return 30 + ((dots - min) / (max - min || 1)) * 70;
   }
 
   function renderRow(lifter, rank, min, max) {
     const isTop3 = rank <= 3;
     const rankClass = rank === 1 ? "rank-gold" : rank === 2 ? "rank-silver" : rank === 3 ? "rank-bronze" : "";
     const rowClass = [rank === 1 ? "row-first" : "", lifter.legacy ? "row-legacy" : ""].filter(Boolean).join(" ");
-    const width = barWidth(lifter.dots, min, max);
     const dotsHL = isTop3 ? "dots-highlight" : "";
     const legacyBadge = lifter.legacy ? `<span class="legacy-badge">Legacy</span>` : "";
 
     return `
     <article class="lb-row ${rowClass}" data-rank="${rank}">
-      <div class="bar-bg" style="width:${width}%"></div>
+      <div class="bar-bg" style="width:${barWidth(lifter.dots,min,max)}%"></div>
       <div class="row-inner">
         <span class="col-rank ${rankClass}">${rank}</span>
         <div class="col-name-wrap">
           <div class="name-line">
             <a class="athlete-name" href="https://www.openpowerlifting.org/u/${lifter.slug}" target="_blank" rel="noopener">${lifter.name}</a>
-            ${legacyBadge}
-            ${igLink(lifter.ig)}
+            ${legacyBadge}${igLink(lifter.ig)}
           </div>
         </div>
         <span class="col-lift desktop-only">${fmt(lifter.squat)}</span>
@@ -90,7 +127,161 @@
     });
   }
 
-  // ── Theme (system preference only) ───────────────────────────
+  // ── Dynamic mode ──────────────────────────────────────────────
+
+  function createOverlay() {
+    const el = document.createElement("div");
+    el.id = "dynamic-overlay";
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-label", "Click to exit dynamic mode");
+    document.body.appendChild(el);
+    el.addEventListener("click", exitDynamic);
+    return el;
+  }
+
+  function clearDynamic() {
+    cancelAnimationFrame(scrollRAF);
+    clearTimeout(holdTimeout);
+    scrollRAF = null;
+    holdTimeout = null;
+  }
+
+  function nextSlide() {
+    clearDynamic();
+    const slide = dynamicPlaylist[playlistIndex % dynamicPlaylist.length];
+    playlistIndex++;
+    if (slide.type === 'scroll') {
+      showScrollSlide();
+    } else {
+      showRivalrySlide(slide);
+    }
+  }
+
+  // ── Scroll slide ──────────────────────────────────────────────
+  function showScrollSlide() {
+    const list = getList();
+    const dots = list.map(l => l.dots);
+    const min = Math.min(...dots), max = Math.max(...dots);
+
+    overlay.innerHTML = `
+      <div class="dyn-scroll-wrap">
+        <div class="dyn-list" id="dyn-list">
+          ${list.map((l, i) => renderDynRow(l, i + 1, min, max)).join("")}
+        </div>
+      </div>
+      <div class="dyn-exit-hint">tap to exit</div>
+    `;
+
+    const listEl = overlay.querySelector("#dyn-list");
+    const wrapEl = overlay.querySelector(".dyn-scroll-wrap");
+
+    // Start from top
+    let startY = 0;
+    let startTime = null;
+    const totalScrollable = listEl.scrollHeight - wrapEl.clientHeight;
+    const duration = CONFIG.scroll_duration_ms;
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      const elapsed = ts - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease in/out for smooth feel
+      const eased = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      wrapEl.scrollTop = eased * totalScrollable;
+
+      if (progress < 1) {
+        scrollRAF = requestAnimationFrame(step);
+      } else {
+        holdTimeout = setTimeout(nextSlide, 800);
+      }
+    }
+
+    scrollRAF = requestAnimationFrame(step);
+  }
+
+  function renderDynRow(lifter, rank, min, max) {
+    const rankClass = rank === 1 ? "rank-gold" : rank === 2 ? "rank-silver" : rank === 3 ? "rank-bronze" : "";
+    const isTop3 = rank <= 3;
+    const dotsHL = isTop3 ? "dots-highlight" : "";
+    const legacyTag = lifter.legacy ? `<span class="dyn-legacy-tag">Legacy</span>` : "";
+    const width = barWidth(lifter.dots, min, max);
+
+    return `
+    <div class="dyn-row" data-rank="${rank}">
+      <div class="dyn-bar" style="width:${width}%"></div>
+      <span class="dyn-rank ${rankClass}">${rank}</span>
+      <span class="dyn-name">${lifter.name}${legacyTag}</span>
+      <span class="dyn-dots ${dotsHL}">${fmtDots(lifter.dots)}</span>
+    </div>`;
+  }
+
+  // ── Rivalry slide ─────────────────────────────────────────────
+  function showRivalrySlide({ a, b, gap }) {
+    overlay.innerHTML = `
+      <div class="dyn-rivalry">
+        <div class="dyn-rivalry-label">Rivalry</div>
+        <div class="dyn-rivalry-fighters">
+          <div class="dyn-fighter dyn-fighter-a">
+            <div class="dyn-fighter-name">${a.name}</div>
+            <div class="dyn-fighter-dots">${fmtDots(a.dots)}</div>
+          </div>
+          <div class="dyn-vs">
+            <div class="dyn-vs-text">VS</div>
+            <div class="dyn-gap-label">${gap.toFixed(2)} apart</div>
+          </div>
+          <div class="dyn-fighter dyn-fighter-b">
+            <div class="dyn-fighter-name">${b.name}</div>
+            <div class="dyn-fighter-dots">${fmtDots(b.dots)}</div>
+          </div>
+        </div>
+        <div class="dyn-gap-bar-wrap">
+          <div class="dyn-gap-bar-track">
+            <div class="dyn-gap-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dyn-exit-hint">tap to exit</div>
+    `;
+
+    // Animate gap bar in
+    requestAnimationFrame(() => {
+      const fill = overlay.querySelector(".dyn-gap-bar-fill");
+      if (fill) fill.style.width = "100%";
+    });
+
+    holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
+  }
+
+  // ── Enter / exit dynamic ──────────────────────────────────────
+  function enterDynamic() {
+    dynamicActive = true;
+    const list = getList();
+    dynamicPlaylist = buildPlaylist(list);
+    playlistIndex = 0;
+
+    overlay = createOverlay();
+
+    // Attempt fullscreen
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+
+    nextSlide();
+  }
+
+  function exitDynamic() {
+    dynamicActive = false;
+    clearDynamic();
+
+    if (overlay) { overlay.remove(); overlay = null; }
+
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+  }
+
+  // ── Inits ─────────────────────────────────────────────────────
   function initTheme() {
     const root = document.documentElement;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -100,7 +291,6 @@
     });
   }
 
-  // ── Legacy ────────────────────────────────────────────────────
   function initLegacy() {
     const btn = document.getElementById("legacy-toggle");
     if (!btn) return;
@@ -112,9 +302,16 @@
     });
   }
 
+  function initDynamic() {
+    const btn = document.getElementById("dynamic-toggle");
+    if (!btn) return;
+    btn.addEventListener("click", enterDynamic);
+  }
+
   function init() {
     initTheme();
     initLegacy();
+    initDynamic();
     render();
   }
 

@@ -33,7 +33,7 @@ const LIFTERS = [
   {
     name: "Ant White",
     slug: "anthonywhite1",
-    ig: "shred.kemer",
+    ig: "shred.kemper",
     squat: 250, bench: 137.5, deadlift: 280, total: 645, dots: 411.24,
   },
   {
