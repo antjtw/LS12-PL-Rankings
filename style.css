@@ -459,7 +459,7 @@ main {
 .dyn-scroll-wrap {
   flex: 1;
   overflow: hidden;
-  padding: 6vh 4vw 8vh;
+  padding: 6vh 4vw 12vh;
 }
 
 .dyn-list {
