@@ -4,8 +4,8 @@
 
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
-    rivalry_count:      8,       // number of rivalry pairs to surface
-    rivalries_per_break:5,       // how many rivalries between each list scroll
+    rivalry_count:      12,      // size of the eligible pool to sample from
+    rivalries_per_break:6,       // how many rivalries shown between each list scroll
     scroll_duration_ms: 34000,   // how long the scroll phase lasts
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
     scroll_px_per_sec:  45,      // scroll speed during list phase
@@ -154,19 +154,13 @@
   }
 
   function buildPlaylist(list) {
-    const rivalries = shuffle(getRivalries(list));
-    // scroll, then a group of rivalries, then scroll, then next group ...
-    const pl = [];
-    const perBreak = CONFIG.rivalries_per_break;
-    let i = 0;
-    while (i < rivalries.length) {
-      pl.push({ type: 'scroll' });
-      for (let j = 0; j < perBreak && i < rivalries.length; j++, i++) {
-        pl.push({ type: 'rivalry', ...rivalries[i] });
-      }
-    }
-    // Ensure the loop ends on a scroll before repeating
-    pl.push({ type: 'scroll' });
+    // One clean cycle: a single list scroll, then exactly N rivalries.
+    // nextSlide() rebuilds a fresh randomised cycle each time it completes,
+    // so the rhythm is always  List -> N rivalries -> List -> N rivalries.
+    const n = CONFIG.rivalries_per_break;
+    const rivalries = shuffle(getRivalries(list)).slice(0, n);
+    const pl = [{ type: 'scroll' }];
+    for (const r of rivalries) pl.push({ type: 'rivalry', ...r });
     return pl;
   }
 
@@ -273,7 +267,13 @@
       return;
     }
 
-    const slide = dynamicPlaylist[playlistIndex % dynamicPlaylist.length];
+    // When we've run through the current cycle, build a fresh randomised one
+    if (playlistIndex >= dynamicPlaylist.length) {
+      dynamicPlaylist = buildPlaylist(getList());
+      playlistIndex = 0;
+    }
+
+    const slide = dynamicPlaylist[playlistIndex];
     playlistIndex++;
     if (slide.type === 'scroll') {
       showScrollSlide();
