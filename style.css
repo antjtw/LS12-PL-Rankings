@@ -500,8 +500,8 @@ main {
 .dyn-page-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 4vh 4vw 2vh;
+  justify-content: flex-end;
+  padding: 3vh 4vw 0;
   flex-shrink: 0;
 }
 

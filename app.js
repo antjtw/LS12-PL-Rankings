@@ -389,7 +389,6 @@
 
     overlay.innerHTML = `
       <div class="dyn-page-header">
-        ${LOGO_SVG}
         <div class="dyn-page-indicator">${pageIndex + 1} / ${pageCount}</div>
       </div>
       <div class="dyn-page-wrap">
