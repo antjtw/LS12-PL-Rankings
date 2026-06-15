@@ -5,9 +5,9 @@
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
     rivalry_count:      5,      // number of rivalry pairs to surface
-    scroll_duration_ms: 18000,  // how long the scroll phase lasts
+    scroll_duration_ms: 26000,  // how long the scroll phase lasts
     rivalry_hold_ms:    9000,   // how long each rivalry card holds
-    scroll_px_per_sec:  60,     // scroll speed during list phase
+    scroll_px_per_sec:  45,     // scroll speed during list phase
   };
 
   // ── State ─────────────────────────────────────────────────────
@@ -32,13 +32,16 @@
   }
 
   function getRivalries(list) {
-    // Find all adjacent pairs, sort by gap, take top N
+    // Find all pairs within 10 DOTS of each other, prefer higher-ranked pairs
     const pairs = [];
     for (let i = 0; i < list.length - 1; i++) {
-      const gap = list[i].dots - list[i + 1].dots;
-      pairs.push({ a: list[i], b: list[i + 1], gap });
+      for (let j = i + 1; j < list.length; j++) {
+        const gap = list[i].dots - list[j].dots;
+        if (gap <= 10) pairs.push({ a: list[i], b: list[j], gap });
+      }
     }
-    pairs.sort((x, y) => x.gap - y.gap);
+    // Sort by rank proximity (prefer pairs closest to top) then by gap
+    pairs.sort((x, y) => (x.a.dots + x.b.dots) > (y.a.dots + y.b.dots) ? -1 : 1);
     return pairs.slice(0, CONFIG.rivalry_count);
   }
 
