@@ -11,7 +11,7 @@
     page_fade_ms:       400,     // fade-out of the previous page
     cascade_stagger_ms: 60,      // delay between each row cascading in
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
-    joke_chance_each:   0.00175, // 0.175% chance per joke rivalry, per check
+    joke_chance_each:   0.0021,  // 0.21% chance per joke rivalry, per check
   };
 
   // ── State ─────────────────────────────────────────────────────
