@@ -592,6 +592,9 @@
     overlay = createOverlay();
     overlay.style.setProperty("--dyn-fade", `${CONFIG.page_fade_ms}ms`);
 
+    // Keep the URL hash in step so an auto-reload preserves this state
+    try { window.history.replaceState(null, "", "#" + currentStateHash()); } catch (_) {}
+
     // Attempt fullscreen
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
@@ -606,8 +609,59 @@
 
     if (overlay) { overlay.remove(); overlay = null; }
 
+    // Update hash to reflect that we're back on the static board
+    try { window.history.replaceState(null, "", "#" + currentStateHash()); } catch (_) {}
+
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+  }
+
+  // ── Weekly auto-reload (keeps an always-on screen fresh) ──────
+  // Once a week, Wednesday 06:15 local time (just after the ~06:00 scrape and
+  // Vercel redeploy), the page reloads itself to pick up the new data. The
+  // current state — static/dynamic and legacy on/off — is saved to the URL
+  // hash before reloading and restored on load, so a gym TV in dynamic mode
+  // comes back into dynamic mode rather than dropping to the static board.
+
+  function currentStateHash() {
+    const mode = dynamicActive ? "dynamic" : "static";
+    return showLegacy ? `${mode}-legacy` : mode;
+  }
+
+  function scheduleWeeklyReload() {
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(6, 15, 0, 0);                 // 06:15 local
+    // Advance to the next Wednesday (day 3). If today is Wednesday but 06:15
+    // has already passed, go to next week.
+    const DAY_WED = 3;
+    let add = (DAY_WED - target.getDay() + 7) % 7;
+    if (add === 0 && target <= now) add = 7;
+    target.setDate(target.getDate() + add);
+
+    const ms = target - now;
+    // setTimeout caps at ~24.8 days; our max (7 days) is well within range.
+    setTimeout(() => {
+      // Preserve state across the reload, then reload from the server.
+      try { window.location.hash = currentStateHash(); } catch (_) {}
+      window.location.reload();
+    }, ms);
+  }
+
+  // Restore state from the hash on load (set by the weekly reload).
+  function restoreFromHash() {
+    const h = (window.location.hash || "").replace(/^#/, "");
+    if (!h) return;
+    const wantLegacy = h.endsWith("-legacy");
+    const wantDynamic = h.startsWith("dynamic");
+
+    if (wantLegacy) applyLegacy(true);
+
+    if (wantDynamic) {
+      // Re-enter dynamic mode. Fullscreen may not re-arm without a user
+      // gesture (browser security); on a kiosk/OS-fullscreen TV that's moot.
+      enterDynamic();
+    }
   }
 
   // ── Inits ─────────────────────────────────────────────────────
@@ -620,15 +674,21 @@
     });
   }
 
+  function applyLegacy(on) {
+    showLegacy = on;
+    const btn = document.getElementById("legacy-toggle");
+    if (btn) {
+      btn.classList.toggle("legacy-active", showLegacy);
+      btn.textContent = showLegacy ? "Hide Legacy" : "Show Legacy";
+    }
+    render();
+    try { window.history.replaceState(null, "", "#" + currentStateHash()); } catch (_) {}
+  }
+
   function initLegacy() {
     const btn = document.getElementById("legacy-toggle");
     if (!btn) return;
-    btn.addEventListener("click", () => {
-      showLegacy = !showLegacy;
-      btn.classList.toggle("legacy-active", showLegacy);
-      btn.textContent = showLegacy ? "Hide Legacy" : "Show Legacy";
-      render();
-    });
+    btn.addEventListener("click", () => applyLegacy(!showLegacy));
   }
 
   function initDynamic() {
@@ -642,6 +702,8 @@
     initLegacy();
     initDynamic();
     render();
+    restoreFromHash();      // re-apply state if we just auto-reloaded
+    scheduleWeeklyReload(); // arm the next Wednesday 06:15 refresh
   }
 
   document.readyState === "loading"
