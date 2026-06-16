@@ -65,8 +65,8 @@
       id: "will-nat-patience",
       build: () => ({
         a: realFighter("williamwebb1"),
-        b: { name: "Nat's Patience", dots: 0, fed: "COACH", equip: "Thin", bodyweight: "0", fake: true },
-        caption: "Nat Robinson has coached Will for years. Nat's patience: not pictured, presumed depleted.",
+        b: { name: "Nat Robinson", dots: 389.67, fed: "BPU", equip: "Raw", bodyweight: "88.5", fake: true },
+        caption: "Nat can pull 252.5 and coaches Will every week. The lifting is the easy part. Nat's patience is the real PR.",
       }),
     },
     {
@@ -75,14 +75,6 @@
         a: realFighter("joecurzon"),
         b: { name: "WRPF Referees", dots: 999.99, fed: "Panel", equip: "Eagle-Eyed", bodyweight: "∞", fake: true },
         caption: "Joe has never missed depth. The three red lights are a conspiracy. Especially her.",
-      }),
-    },
-    {
-      id: "mike-tendons",
-      build: () => ({
-        a: realFighter("mikejones1"),
-        b: { name: "Two Working Knee Tendons", dots: 0, fed: "Intact", equip: "A Distant Memory", bodyweight: "—", fake: true },
-        caption: "Mike had two. He now runs a leaner operation.",
       }),
     },
     {
@@ -97,8 +89,8 @@
       id: "gen-asteroid",
       build: () => ({
         a: realFighter("genevievecollins"),
-        b: { name: "The Chicxulub Impactor", dots: 66, fed: "Asteroid", equip: "10km Wide", bodyweight: "A Lot", fake: true },
-        caption: "It ended the dinosaurs. Gen is still here. Advantage: Gen.",
+        b: { name: "The Asteroid That Killed The Dinosaurs", dots: 66, fed: "Space", equip: "10km Wide", bodyweight: "A Lot", fake: true },
+        caption: "M66,000,000 British Champion. Narrowly beating the Stegosaurus and the Diplodocus on the day.",
       }),
     },
     {
@@ -113,16 +105,8 @@
       id: "mike-brett",
       build: () => ({
         a: realFighter("mikejones1"),
-        b: { name: "Brett Brooks", dots: 534.69, fed: "BPU", equip: "Wraps", bodyweight: "109.4", fake: true },
-        caption: "Brett's right there. 0.94 back. Mike can hear the footsteps.",
-      }),
-    },
-    {
-      id: "joe-alopecia",
-      build: () => ({
-        a: realFighter("joecurzon"),
-        b: { name: "Androgenic Alopecia", dots: 378.88, fed: "Genetic", equip: "Receding", bodyweight: "—", fake: true },
-        caption: "Undefeated. Undeterred. Gaining ground at the temples. 0.01 ahead.",
+        b: { name: "Brett Brooks", dots: 536.13, fed: "BPU", equip: "Wraps", bodyweight: "109.4", fake: true },
+        caption: "Brett's ahead. By 0.50. Mike does not want to talk about it.",
       }),
     },
     {
@@ -137,14 +121,6 @@
           caption: "Some bonds transcend the platform. Toby and Matt are not fighting destiny. They're holding hands with it.",
         };
       },
-    },
-    {
-      id: "laura-rack",
-      build: () => ({
-        a: realFighter("laurajones6"),
-        b: { name: "The Barbell Rack", dots: 0, fed: "Equipment", equip: "Treacherous", bodyweight: "Heavy", fake: true },
-        caption: "It tipped the loaded bar onto her and broke her hand. Laura came back. The rack is still just standing there.",
-      }),
     },
     {
       id: "chris-image",
@@ -178,6 +154,27 @@
         b: { name: "The Curse of 240", dots: 240, fed: "Unexplained", equip: "Squat", bodyweight: "240kg", fake: true },
         caption: "They can squat more. The bar reads 240. It does not matter. The bar always wins.",
       }),
+    },
+    {
+      id: "owen-breeze",
+      build: () => ({
+        a: realFighter("owencrisp"),
+        b: { name: "A Light Breeze", dots: 0, fed: "Weather", equip: "Gentle", bodyweight: "Featherweight", fake: true },
+        caption: "Owen makes weight with room to spare. A stiff gust is, frankly, a genuine threat.",
+      }),
+    },
+    {
+      id: "ant-vs-ant",
+      build: () => {
+        const white = realFighter("anthonywhite1");
+        const tony = realFighter("anthonymclaughlin1");
+        if (!white || !tony) return { a: null, b: null };
+        return {
+          a: white,
+          b: tony,
+          caption: "The Battle of the Ants. Two Anthonys, separated by a hair on DOTS — but Ant White edges it on GLP. Bragging rights remain contested.",
+        };
+      },
     },
   ];
 
