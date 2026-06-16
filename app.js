@@ -197,6 +197,33 @@
       .sort((a, b) => b.dots - a.dots);
   }
 
+  // Weekly change data (from changes.js). Falls back gracefully if absent.
+  const CH = (typeof CHANGES !== "undefined" && CHANGES) ? CHANGES : {
+    prevRankActive: {}, prevRankAll: {}, pbEvents: []
+  };
+
+  // Movement arrow for a lifter at a given current rank, relative to last week.
+  // Uses the previous-rank map for whichever view is active. Returns HTML.
+  function movementArrow(slug, currentRank) {
+    const prevMap = showLegacy ? CH.prevRankAll : CH.prevRankActive;
+    const prev = prevMap ? prevMap[slug] : undefined;
+    if (prev == null) {
+      // No previous rank: brand-new entry (only flag if we have a baseline)
+      const hasBaseline = prevMap && Object.keys(prevMap).length > 0;
+      return hasBaseline
+        ? `<span class="move move-new" title="New entry">NEW</span>`
+        : "";
+    }
+    const delta = prev - currentRank; // positive = moved up
+    if (delta > 0) {
+      return `<span class="move move-up" title="Up ${delta} from last week">▲<span class="move-num">${delta}</span></span>`;
+    }
+    if (delta < 0) {
+      return `<span class="move move-down" title="Down ${-delta} from last week">▼<span class="move-num">${-delta}</span></span>`;
+    }
+    return `<span class="move move-same" title="No change">–</span>`;
+  }
+
   function getRivalries(list) {
     // Find ALL pairs within the DOTS threshold of each other (not just adjacent ranks)
     const pairs = [];
@@ -222,15 +249,21 @@
   }
 
   function buildPlaylist(list) {
-    // One clean cycle: all leaderboard pages (8 per page) cascade through once,
-    // then exactly N randomised rivalries. nextSlide() rebuilds a fresh cycle
-    // each loop so rivalries stay varied.
+    // One clean cycle: all leaderboard pages cascade through once, then this
+    // week's PB callouts (if any), then N randomised rivalries. nextSlide()
+    // rebuilds a fresh cycle each loop so rivalries stay varied.
     const pl = [];
     const per = CONFIG.per_page;
     const pageCount = Math.ceil(list.length / per);
     for (let p = 0; p < pageCount; p++) {
       pl.push({ type: 'page', pageIndex: p, pageCount });
     }
+    // This week's PB events become callout cards (guaranteed, not random)
+    const pbEvents = (CH.pbEvents || []).filter(ev =>
+      LIFTERS.some(l => l.slug === ev.slug)   // only celebrate current members
+    );
+    for (const ev of pbEvents) pl.push({ type: 'pb', ev });
+
     const rivalries = shuffle(getRivalries(list)).slice(0, CONFIG.rivalries_per_break);
     for (const r of rivalries) pl.push({ type: 'rivalry', ...r });
     return pl;
@@ -270,7 +303,7 @@
     <article class="lb-row ${rowClass}" data-rank="${rank}">
       <div class="bar-bg" style="width:${barWidth(lifter.dots,min,max)}%"></div>
       <div class="row-inner">
-        <span class="col-rank ${rankClass}">${rank}</span>
+        <span class="col-rank ${rankClass}">${rank}${movementArrow(lifter.slug, rank)}</span>
         <div class="col-name-wrap">
           <div class="name-line">
             <a class="athlete-name" href="https://www.openpowerlifting.org/u/${lifter.slug}" target="_blank" rel="noopener">${lifter.name}</a>
@@ -340,6 +373,11 @@
 
     if (slide.type === 'page') {
       showPageSlide(slide);
+      return;
+    }
+
+    if (slide.type === 'pb') {
+      showPbSlide(slide.ev);
       return;
     }
 
@@ -500,6 +538,37 @@
       const fill = overlay.querySelector(".dyn-gap-bar-fill");
       if (fill) fill.style.width = "100%";
     });
+
+    holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
+  }
+
+  // ── PB callout slide (this week's new personal bests) ─────────
+  function showPbSlide(ev) {
+    // Build the list of improved lifts (label + from → to)
+    const liftLabels = { squat: "Squat", bench: "Bench", deadlift: "Deadlift", total: "Total" };
+    const rows = Object.entries(ev.improved || {}).map(([k, v]) => `
+      <div class="dyn-pb-line">
+        <span class="dyn-pb-lift">${liftLabels[k] || k}</span>
+        <span class="dyn-pb-vals"><span class="dyn-pb-from">${fmt(v.from)}</span> → <span class="dyn-pb-to">${fmt(v.to)}</span></span>
+      </div>`).join("");
+
+    const placesUp = ev.placesUp
+      ? `<div class="dyn-pb-jump">Up ${ev.placesUp} place${ev.placesUp > 1 ? "s" : ""} on the board</div>`
+      : "";
+
+    overlay.innerHTML = `
+      <div class="dyn-rivalry dyn-pb">
+        <div class="dyn-rivalry-label dyn-pb-label">New PB</div>
+        <div class="dyn-pb-name">${ev.name}</div>
+        <div class="dyn-pb-dots">
+          <span class="dyn-pb-dots-val">${fmtDots(ev.dots.to)}</span>
+          <span class="dyn-pb-dots-tag">DOTS</span>
+        </div>
+        <div class="dyn-pb-lines">${rows}</div>
+        ${placesUp}
+      </div>
+      <div class="dyn-exit-hint">tap to exit</div>
+    `;
 
     holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
   }

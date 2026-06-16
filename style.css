@@ -219,11 +219,39 @@ main {
   color: var(--text-dim);
   align-self: center;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
 }
 
 .rank-gold   { color: var(--gold); }
 .rank-silver { color: var(--silver); }
 .rank-bronze { color: var(--bronze); }
+
+/* Weekly movement indicator under the rank */
+.move {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  letter-spacing: 0;
+}
+.move-num { font-size: 9px; }
+.move-up   { color: #36c46b; }
+.move-down { color: #9aa0a6; }
+.move-same { color: rgba(127,127,127,0.4); font-weight: 400; }
+.move-new  {
+  color: var(--accent);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 1px 3px;
+}
 
 .col-name-wrap { grid-column: 2; grid-row: 1; min-width: 0; }
 .stats-mobile  { grid-column: 2; grid-row: 2; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -854,4 +882,102 @@ main {
   /* Narrow screens: drop the per-lift stats, keep rank / name / DOTS */
   .dyn-row { grid-template-columns: 12vw 1fr auto; }
   .dyn-stats { display: none; }
+}
+
+/* ── PB callout slide (dynamic mode) ─────────────────────────── */
+.dyn-pb {
+  gap: 2.5vh;
+}
+
+.dyn-pb-label {
+  color: #36c46b !important;
+}
+
+.dyn-pb-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 84px);
+  color: #e8e8e8;
+  line-height: 1.02;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.dyn-pb-dots {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+
+.dyn-pb-dots-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(34px, 7vw, 104px);
+  color: #FFD500;
+  line-height: 1;
+}
+
+.dyn-pb-dots-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(11px, 1.4vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.dyn-pb-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  width: min(560px, 80vw);
+}
+
+.dyn-pb-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(8px, 1.4vh, 16px) clamp(16px, 2vw, 28px);
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  border-left: 3px solid #36c46b;
+}
+
+.dyn-pb-lift {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(16px, 2.4vw, 32px);
+  color: #e8e8e8;
+  letter-spacing: 0.02em;
+}
+
+.dyn-pb-vals {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: clamp(16px, 2.4vw, 32px);
+  color: rgba(255,255,255,0.5);
+}
+
+.dyn-pb-from { color: rgba(255,255,255,0.4); }
+.dyn-pb-to   { color: #36c46b; font-weight: 800; }
+
+.dyn-pb-jump {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(12px, 1.6vw, 20px);
+  font-weight: 600;
+  color: #36c46b;
+  letter-spacing: 0.04em;
+}
+
+/* PB card entrance — reuse fighter/label timing */
+.dyn-pb .dyn-pb-name   { animation: fighterInLeft 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.1s; }
+.dyn-pb .dyn-pb-dots   { animation: vsPop 0.55s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay: 0.3s; }
+.dyn-pb .dyn-pb-lines  { animation: fadeUp 0.5s ease both; animation-delay: 0.45s; }
+.dyn-pb .dyn-pb-jump   { animation: fadeUp 0.5s ease both; animation-delay: 0.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dyn-pb .dyn-pb-name,
+  .dyn-pb .dyn-pb-dots,
+  .dyn-pb .dyn-pb-lines,
+  .dyn-pb .dyn-pb-jump { animation: none !important; }
 }
