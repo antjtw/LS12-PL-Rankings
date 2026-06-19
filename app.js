@@ -668,31 +668,27 @@
     else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
   }
 
-  // ── Weekly auto-reload (keeps an always-on screen fresh) ──────
-  // Once a week, Wednesday 06:15 local time (just after the ~06:00 scrape and
-  // Vercel redeploy), the page reloads itself to pick up the new data. The
-  // current state — static/dynamic and legacy on/off — is saved to the URL
-  // hash before reloading and restored on load, so a gym TV in dynamic mode
-  // comes back into dynamic mode rather than dropping to the static board.
+  // ── Daily auto-reload (keeps an always-on screen fresh) ──────
+  // Each day at 12:15 local time (just after the ~noon scrape and Vercel
+  // redeploy), the page reloads itself to pick up the new data. The current
+  // state — static/dynamic and legacy on/off — is saved to the URL hash before
+  // reloading and restored on load, so a gym TV in dynamic mode comes back into
+  // dynamic mode rather than dropping to the static board.
 
   function currentStateHash() {
     const mode = dynamicActive ? "dynamic" : "static";
     return showLegacy ? `${mode}-legacy` : mode;
   }
 
-  function scheduleWeeklyReload() {
+  function scheduleDailyReload() {
     const now = new Date();
     const target = new Date(now);
-    target.setHours(6, 15, 0, 0);                 // 06:15 local
-    // Advance to the next Wednesday (day 3). If today is Wednesday but 06:15
-    // has already passed, go to next week.
-    const DAY_WED = 3;
-    let add = (DAY_WED - target.getDay() + 7) % 7;
-    if (add === 0 && target <= now) add = 7;
-    target.setDate(target.getDate() + add);
+    target.setHours(12, 15, 0, 0);                // 12:15 local
+    // If today's 12:15 has already passed, schedule for tomorrow.
+    if (target <= now) target.setDate(target.getDate() + 1);
 
     const ms = target - now;
-    // setTimeout caps at ~24.8 days; our max (7 days) is well within range.
+    // setTimeout caps at ~24.8 days; a max of 24h is well within range.
     setTimeout(() => {
       // Preserve state across the reload, then reload from the server.
       try { window.location.hash = currentStateHash(); } catch (_) {}
@@ -700,7 +696,7 @@
     }, ms);
   }
 
-  // Restore state from the hash on load (set by the weekly reload).
+  // Restore state from the hash on load (set by the daily reload).
   function restoreFromHash() {
     const h = (window.location.hash || "").replace(/^#/, "");
     if (!h) return;
@@ -770,7 +766,7 @@
     render();
     setUpdatedLine();       // show real refresh date if available
     restoreFromHash();      // re-apply state if we just auto-reloaded
-    scheduleWeeklyReload(); // arm the next Wednesday 06:15 refresh
+    scheduleDailyReload();  // arm the next daily 12:15 refresh
   }
 
   document.readyState === "loading"
