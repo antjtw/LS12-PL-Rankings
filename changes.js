@@ -7,7 +7,7 @@
 // generated: ISO timestamp of the run that produced this file.
 
 const CHANGES = {
-  "generated": "2026-06-19T13:58:51.682Z",
+  "generated": "2026-06-20T12:23:32.214Z",
   "prevRankActive": {
     "wyliesung": 1,
     "mikejones1": 2,
@@ -77,66 +77,5 @@ const CHANGES = {
     "jacklarkinsthomas": 39,
     "laurajones6": 40
   },
-  "pbEvents": [
-    {
-      "slug": "owencrisp",
-      "name": "Owen Crisp",
-      "improved": {
-        "squat": {
-          "from": 160,
-          "to": 172.5
-        },
-        "total": {
-          "from": 462.5,
-          "to": 467.5
-        }
-      },
-      "dots": {
-        "from": 327.69,
-        "to": 327.69
-      }
-    },
-    {
-      "slug": "kairichardson",
-      "name": "Kai Richardson",
-      "improved": {
-        "squat": {
-          "from": 207.5,
-          "to": 215
-        }
-      },
-      "dots": {
-        "from": 450.21,
-        "to": 450.21
-      }
-    },
-    {
-      "slug": "benthornes",
-      "name": "Ben Thornes",
-      "improved": {
-        "bench": {
-          "from": 155,
-          "to": 160
-        }
-      },
-      "dots": {
-        "from": 453.92,
-        "to": 453.92
-      }
-    },
-    {
-      "slug": "anthonymclaughlin1",
-      "name": "Tony McLaughlin",
-      "improved": {
-        "squat": {
-          "from": 240,
-          "to": 245
-        }
-      },
-      "dots": {
-        "from": 411.38,
-        "to": 411.38
-      }
-    }
-  ]
+  "pbEvents": []
 };
