@@ -408,6 +408,16 @@
     holdTimeout = null;
   }
 
+  // Persistent overlay footer: last-updated (bottom-left) + exit hint
+  // (bottom-right). Included in every slide's markup so it survives the
+  // innerHTML swaps, and excluded from the cross-slide fade.
+  function dynFooterHTML() {
+    const updated = lastUpdatedText();
+    return `
+      ${updated ? `<div class="dyn-updated">${updated}</div>` : ""}
+      ${dynFooterHTML()}`;
+  }
+
   function renderSlide() {
     // When we've run through the current cycle, build a fresh randomised one
     if (playlistIndex >= dynamicPlaylist.length) {
@@ -493,7 +503,7 @@
         </div>
         ${captionHTML}
       </div>
-      <div class="dyn-exit-hint">tap to exit</div>
+      ${dynFooterHTML()}
     `;
 
     // Cascade each row in from the side
@@ -590,7 +600,7 @@
           </div>
         </div>`}
       </div>
-      <div class="dyn-exit-hint">tap to exit</div>
+      ${dynFooterHTML()}
     `;
 
     // Animate gap bar in
@@ -627,7 +637,7 @@
         <div class="dyn-pb-lines">${rows}</div>
         ${placesUp}
       </div>
-      <div class="dyn-exit-hint">tap to exit</div>
+      ${dynFooterHTML()}
     `;
 
     holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
@@ -712,18 +722,57 @@
     }
   }
 
-  // ── Footer "last updated" line ────────────────────────────────
-  // Shows the real refresh date from changes.js (e.g. "Updated 18 Jun 2026").
-  // Falls back to the static cadence line if no timestamp exists yet.
+  // ── "Last updated" text (GOV.UK formatting) ───────────────────
+  // Builds e.g. "Last updated 22 June 2026 at 12:05pm" from changes.js.
+  // The stored timestamp is UTC; we render it in UK time (Europe/London) so it
+  // reads as the actual local time the scrape ran. Exact 12:00 shows "midday".
+  // Returns null if there's no timestamp yet (callers use a fallback).
+  const MONTHS_FULL = ["January","February","March","April","May","June",
+                       "July","August","September","October","November","December"];
+
+  function ukParts(date) {
+    // Extract day/month/year/hour/minute as they read in UK local time.
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric", month: "numeric", day: "numeric",
+      hour: "numeric", minute: "numeric", hour12: false,
+    });
+    const p = {};
+    for (const part of fmt.formatToParts(date)) {
+      if (part.type !== "literal") p[part.type] = part.value;
+    }
+    return {
+      day: parseInt(p.day, 10),
+      month: parseInt(p.month, 10),
+      year: parseInt(p.year, 10),
+      hour: parseInt(p.hour, 10) % 24,
+      minute: parseInt(p.minute, 10),
+    };
+  }
+
+  function govukTime(hour, minute) {
+    if (hour === 0 && minute === 0) return "midnight";
+    if (hour === 12 && minute === 0) return "midday";
+    const ampm = hour < 12 ? "am" : "pm";
+    let h = hour % 12; if (h === 0) h = 12;
+    return minute === 0 ? `${h}${ampm}` : `${h}:${String(minute).padStart(2, "0")}${ampm}`;
+  }
+
+  function lastUpdatedText() {
+    const ts = CH.generated;
+    if (!ts) return null;
+    const d = new Date(ts);
+    if (isNaN(d)) return null;
+    const { day, month, year, hour, minute } = ukParts(d);
+    return `Last updated ${day} ${MONTHS_FULL[month - 1]} ${year} at ${govukTime(hour, minute)}`;
+  }
+
   function setUpdatedLine() {
     const el = document.getElementById("updated-line");
     if (!el) return;
-    const ts = CH.generated;
-    if (!ts) return; // keep the static "Updated each Wednesday at 6am."
-    const d = new Date(ts);
-    if (isNaN(d)) return;
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    el.textContent = `Updated ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}.`;
+    const txt = lastUpdatedText();
+    if (txt) el.textContent = txt + "."; // footer sentence keeps its full stop
+    // else: leave the static "Updated daily at midday." fallback in the HTML
   }
 
   // ── Inits ─────────────────────────────────────────────────────

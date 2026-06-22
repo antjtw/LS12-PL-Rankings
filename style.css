@@ -387,7 +387,7 @@ main {
   .dyn-gap-label,
   .dyn-caption,
   .dyn-row-cascade { animation: none !important; }
-  #dynamic-overlay > *:not(.dyn-exit-hint) { transition: none !important; }
+  #dynamic-overlay > *:not(.dyn-exit-hint):not(.dyn-updated) { transition: none !important; }
 }
 
 /* ── Desktop >= 600px ────────────────────────────────────── */
@@ -516,11 +516,23 @@ main {
   pointer-events: none;
 }
 
-/* Fade transition between slides */
-#dynamic-overlay > *:not(.dyn-exit-hint) {
+/* Last-updated stamp (bottom-left, balances the exit hint) */
+.dyn-updated {
+  position: absolute;
+  bottom: 3vh;
+  left: 3vw;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(10px, 1.2vw, 14px);
+  color: rgba(255,255,255,0.15);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* Fade transition between slides (persistent footer items excluded) */
+#dynamic-overlay > *:not(.dyn-exit-hint):not(.dyn-updated) {
   transition: opacity var(--dyn-fade, 0.4s) ease;
 }
-#dynamic-overlay.dyn-fading > *:not(.dyn-exit-hint) {
+#dynamic-overlay.dyn-fading > *:not(.dyn-exit-hint):not(.dyn-updated) {
   opacity: 0;
 }
 
