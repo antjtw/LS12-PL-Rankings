@@ -55,14 +55,14 @@ const LIFTERS = [
     name: "Talia Firth",
     slug: "taliafirth",
     ig: "talsssssx",
-    squat: 177.5, bench: 102.5, deadlift: 187.5, total: 465, dots: 399.98,
-    fed: "EPA", equip: "Raw", bodyweight: "98",
+    squat: 177.5, bench: 102.5, deadlift: 187.5, total: 465, dots: 406.39,
+    fed: "BPU", equip: "Wraps", bodyweight: "87.4",
   },
   {
     name: "Steve Whittles",
     slug: "stevewhittles",
     ig: "mrnorfgym",
-    squat: 230, bench: 150, deadlift: 270, total: 650, dots: 395.43,
+    squat: 235, bench: 150, deadlift: 270, total: 650, dots: 395.43,
     fed: "WRPF-UK", equip: "Wraps", bodyweight: "102.8",
   },
   {
