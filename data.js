@@ -99,6 +99,7 @@ const LIFTERS = [
     ig: "finndavispl",
     squat: 190, bench: 120, deadlift: 215, total: 525, dots: 339.47,
     fed: "EPA", equip: "Raw", bodyweight: "90",
+    legacy: true,
   },
   {
     name: "Matt Anderson",
