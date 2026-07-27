@@ -48,7 +48,7 @@ const LIFTERS = [
     name: "Nick Johnstone",
     slug: "nickjohnstone",
     ig: "njfullpower",
-    squat: 245, bench: 180, deadlift: 242.5, total: 667.5, dots: 408.42,
+    squat: 247.5, bench: 180, deadlift: 242.5, total: 667.5, dots: 408.42,
     fed: "EPA", equip: "Raw", bodyweight: "101.4",
   },
   {
@@ -76,8 +76,8 @@ const LIFTERS = [
     name: "Ash Keeble",
     slug: "ashlingkeeble",
     ig: "ashlinglifts",
-    squat: 145, bench: 87.5, deadlift: 162.5, total: 390, dots: 378.95,
-    fed: "PWFL", equip: "Raw", bodyweight: "75.3",
+    squat: 155, bench: 90, deadlift: 167.5, total: 412.5, dots: 400.64,
+    fed: "EPA", equip: "Raw", bodyweight: "75.4",
   },
   {
     name: "Joe Curzon",
@@ -90,16 +90,8 @@ const LIFTERS = [
     name: "Toby Solomon",
     slug: "tobysolomon",
     ig: "toby_solomon_",
-    squat: 182.5, bench: 127.5, deadlift: 230, total: 540, dots: 345.84,
-    fed: "EPA", equip: "Raw", bodyweight: "91.7",
-  },
-  {
-    name: "Finn Davis",
-    slug: "finndavis",
-    ig: "finndavispl",
-    squat: 190, bench: 120, deadlift: 215, total: 525, dots: 339.47,
-    fed: "EPA", equip: "Raw", bodyweight: "90",
-    legacy: true,
+    squat: 210, bench: 130, deadlift: 255, total: 595, dots: 383.66,
+    fed: "EPA", equip: "Raw", bodyweight: "90.5",
   },
   {
     name: "Matt Anderson",
@@ -180,6 +172,14 @@ const LIFTERS = [
   },
 
   // ── LEGACY MEMBERS ──────────────────────────────────────────
+  {
+    name: "Finn Davis",
+    slug: "finndavis",
+    ig: "finndavispl",
+    squat: 200, bench: 125, deadlift: 220, total: 545, dots: 347.84,
+    fed: "EPA", equip: "Raw", bodyweight: "92.4",
+    legacy: true,
+  },
   {
     name: "Kai Richardson",
     slug: "kairichardson",
