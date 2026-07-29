@@ -14,8 +14,8 @@
 //   ageing out after 7 days. A new PB for a lifter overrides their older one.
 
 const CHANGES = {
-  "generated": "2026-07-28T12:29:15.024Z",
-  "baselineDate": "2026-07-22T12:20:23.189Z",
+  "generated": "2026-07-29T12:54:06.159Z",
+  "baselineDate": "2026-07-29T12:54:06.159Z",
   "prevRankActive": {
     "wyliesung": 1,
     "mikejones1": 2,
@@ -26,13 +26,13 @@ const CHANGES = {
     "anthonywhite1": 7,
     "nickjohnstone": 8,
     "taliafirth": 9,
-    "stevewhittles": 10,
-    "williamwebb1": 11,
-    "leemccafferty": 12,
-    "ashlingkeeble": 13,
-    "joecurzon": 14,
-    "chloeboomer": 15,
-    "tobysolomon": 16,
+    "ashlingkeeble": 10,
+    "stevewhittles": 11,
+    "williamwebb1": 12,
+    "leemccafferty": 13,
+    "tobysolomon": 14,
+    "joecurzon": 15,
+    "chloeboomer": 16,
     "matthewanderson2": 17,
     "owencrisp": 18,
     "johncousins1": 19,
@@ -62,15 +62,15 @@ const CHANGES = {
     "samriddharanjan": 18,
     "nickjohnstone": 19,
     "taliafirth": 20,
-    "stevewhittles": 21,
-    "leohannan": 22,
-    "williamwebb1": 23,
-    "leemccafferty": 24,
-    "alexshortland": 25,
-    "ashlingkeeble": 26,
-    "joecurzon": 27,
-    "chloeboomer": 28,
-    "tobysolomon": 29,
+    "ashlingkeeble": 21,
+    "stevewhittles": 22,
+    "leohannan": 23,
+    "williamwebb1": 24,
+    "leemccafferty": 25,
+    "alexshortland": 26,
+    "tobysolomon": 27,
+    "joecurzon": 28,
+    "chloeboomer": 29,
     "finndavis": 30,
     "matthewanderson2": 31,
     "owencrisp": 32,
@@ -260,8 +260,7 @@ const CHANGES = {
         "from": 378.95,
         "to": 400.64
       },
-      "date": "2026-07-27T13:31:12.441Z",
-      "placesUp": 3
+      "date": "2026-07-27T13:31:12.441Z"
     },
     {
       "slug": "tobysolomon",
@@ -288,8 +287,7 @@ const CHANGES = {
         "from": 345.84,
         "to": 383.66
       },
-      "date": "2026-07-27T13:31:12.441Z",
-      "placesUp": 2
+      "date": "2026-07-27T13:31:12.441Z"
     },
     {
       "slug": "finndavis",
