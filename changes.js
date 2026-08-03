@@ -14,7 +14,7 @@
 //   ageing out after 7 days. A new PB for a lifter overrides their older one.
 
 const CHANGES = {
-  "generated": "2026-08-02T11:52:11.201Z",
+  "generated": "2026-08-03T13:32:24.280Z",
   "baselineDate": "2026-07-29T12:54:06.159Z",
   "prevRankActive": {
     "wyliesung": 1,
@@ -219,102 +219,5 @@ const CHANGES = {
   ],
   "arrivals": [],
   "departures": [],
-  "pbEvents": [
-    {
-      "slug": "nickjohnstone",
-      "name": "Nick Johnstone",
-      "improved": {
-        "squat": {
-          "from": 245,
-          "to": 247.5
-        }
-      },
-      "dots": {
-        "from": 408.42,
-        "to": 408.42
-      },
-      "date": "2026-07-27T13:31:12.441Z"
-    },
-    {
-      "slug": "ashlingkeeble",
-      "name": "Ash Keeble",
-      "improved": {
-        "squat": {
-          "from": 145,
-          "to": 155
-        },
-        "bench": {
-          "from": 87.5,
-          "to": 90
-        },
-        "deadlift": {
-          "from": 162.5,
-          "to": 167.5
-        },
-        "total": {
-          "from": 390,
-          "to": 412.5
-        }
-      },
-      "dots": {
-        "from": 378.95,
-        "to": 400.64
-      },
-      "date": "2026-07-27T13:31:12.441Z"
-    },
-    {
-      "slug": "tobysolomon",
-      "name": "Toby Solomon",
-      "improved": {
-        "squat": {
-          "from": 182.5,
-          "to": 210
-        },
-        "bench": {
-          "from": 127.5,
-          "to": 130
-        },
-        "deadlift": {
-          "from": 230,
-          "to": 255
-        },
-        "total": {
-          "from": 540,
-          "to": 595
-        }
-      },
-      "dots": {
-        "from": 345.84,
-        "to": 383.66
-      },
-      "date": "2026-07-27T13:31:12.441Z"
-    },
-    {
-      "slug": "finndavis",
-      "name": "Finn Davis",
-      "improved": {
-        "squat": {
-          "from": 190,
-          "to": 200
-        },
-        "bench": {
-          "from": 120,
-          "to": 125
-        },
-        "deadlift": {
-          "from": 215,
-          "to": 220
-        },
-        "total": {
-          "from": 525,
-          "to": 545
-        }
-      },
-      "dots": {
-        "from": 339.47,
-        "to": 347.84
-      },
-      "date": "2026-07-27T13:31:12.441Z"
-    }
-  ]
+  "pbEvents": []
 };
